@@ -14,7 +14,7 @@ cd /root/hotel-rating-microservice
 
 
 docker build \
-  --build-arg VITE_API_BASE_URL=http://eks-alb-972646053.ap-south-1.elb.amazonaws.com \
+  --build-arg VITE_API_BASE_URL=http://eks-alb-302654701.ap-south-1.elb.amazonaws.com \
   -t frontendservice:v1 ./hotel-rating-frontend
 
 docker tag frontendservice:v1 ${ecr_repos["frontendservice"]}:v1

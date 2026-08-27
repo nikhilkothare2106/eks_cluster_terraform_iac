@@ -65,3 +65,10 @@ module "eks" {
   create_oidc_provider = var.create_oidc_provider
   tags                 = var.tags
 }
+
+module "setup_ec2" {
+  source = "./modules/setup_ec2"
+
+  subnet_id = module.network.public_subnet_ids[0]
+  ec2_sg    = module.security_group.setup_ec2_security_group_id
+}

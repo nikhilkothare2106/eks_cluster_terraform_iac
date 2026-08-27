@@ -27,54 +27,80 @@ module "node_group" {
   default_node_role_arn         = var.default_node_role_arn
   node_groups                   = var.node_groups
   tags                          = var.tags
+
+  depends_on = [module.addon]
 }
 
 module "addon" {
   source = "./addon"
 
   cluster_name   = module.cluster.cluster_name
-  cluster_addons = var.cluster_addons
+  cluster_addons = {
+    for name, addon in var.cluster_addons : name => addon
+    if name == "vpc-cni"
+  }
   tags           = var.tags
+}
+
+module "addon_after_nodes" {
+  source = "./addon"
+
+  cluster_name = module.cluster.cluster_name
+  cluster_addons = {
+    for name, addon in var.cluster_addons : name => addon
+    if name != "vpc-cni"
+  }
+  tags = var.tags
 
   depends_on = [module.node_group]
 }
 
 moved {
-  from = aws_eks_cluster.this
-  to   = module.cluster.aws_eks_cluster.this
+  from = module.addon.aws_eks_addon.this["coredns"]
+  to   = module.addon_after_nodes.aws_eks_addon.this["coredns"]
 }
 
 moved {
-  from = aws_iam_openid_connect_provider.eks[0]
-  to   = module.cluster.aws_iam_openid_connect_provider.eks[0]
+  from = module.addon.aws_eks_addon.this["kube-proxy"]
+  to   = module.addon_after_nodes.aws_eks_addon.this["kube-proxy"]
 }
 
-moved {
-  from = aws_security_group_rule.cluster_to_shared_node
-  to   = module.cluster.aws_security_group_rule.cluster_to_shared_node
-}
+# moved {
+#   from = aws_eks_cluster.this
+#   to   = module.cluster.aws_eks_cluster.this
+# }
 
-moved {
-  from = aws_security_group_rule.node_to_node
-  to   = module.cluster.aws_security_group_rule.node_to_node
-}
+# moved {
+#   from = aws_iam_openid_connect_provider.eks[0]
+#   to   = module.cluster.aws_iam_openid_connect_provider.eks[0]
+# }
 
-moved {
-  from = aws_security_group_rule.node_to_cluster
-  to   = module.cluster.aws_security_group_rule.node_to_cluster
-}
+# moved {
+#   from = aws_security_group_rule.cluster_to_shared_node
+#   to   = module.cluster.aws_security_group_rule.cluster_to_shared_node
+# }
 
-moved {
-  from = aws_launch_template.node
-  to   = module.node_group.aws_launch_template.node
-}
+# moved {
+#   from = aws_security_group_rule.node_to_node
+#   to   = module.cluster.aws_security_group_rule.node_to_node
+# }
 
-moved {
-  from = aws_eks_node_group.this
-  to   = module.node_group.aws_eks_node_group.this
-}
+# moved {
+#   from = aws_security_group_rule.node_to_cluster
+#   to   = module.cluster.aws_security_group_rule.node_to_cluster
+# }
 
-moved {
-  from = aws_eks_addon.this
-  to   = module.addon.aws_eks_addon.this
-}
+# moved {
+#   from = aws_launch_template.node
+#   to   = module.node_group.aws_launch_template.node
+# }
+
+# moved {
+#   from = aws_eks_node_group.this
+#   to   = module.node_group.aws_eks_node_group.this
+# }
+
+# moved {
+#   from = aws_eks_addon.this
+#   to   = module.addon.aws_eks_addon.this
+# }

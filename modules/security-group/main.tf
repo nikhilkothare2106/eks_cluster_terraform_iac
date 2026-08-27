@@ -73,3 +73,20 @@ resource "aws_security_group" "shared_node" {
     Name = "${var.name}/ClusterSharedNodeSecurityGroup"
   })
 }
+
+resource "aws_security_group" "setup_ec2" {
+  name        = "${var.name}-setup-ec2"
+  description = "Outbound access for the setup EC2 instance"
+  vpc_id      = var.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags, {
+    Name = "${var.name}/SetupEC2SecurityGroup"
+  })
+}
