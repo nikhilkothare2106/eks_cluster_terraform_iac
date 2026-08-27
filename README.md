@@ -16,8 +16,7 @@ eksctl-generated CloudFormation template into reusable modules.
     ├── network/                # VPC, public/private subnets, IGW, NAT GW(s), route tables
     ├── security-group/         # control-plane-additional SG + shared-node SG
     ├── iam/                    # cluster service role, node role, optional fargate role
-    ├── eks/                    # EKS cluster, SG cross-rules, node groups, addons, OIDC provider
-    └── argocd/                 # Argo CD Helm release
+    └── eks/                    # EKS cluster, SG cross-rules, node groups, addons, OIDC provider
 ```
 
 ## What each module does
@@ -41,9 +40,6 @@ eksctl-generated CloudFormation template into reusable modules.
   can only be created once the cluster's own managed SG exists, one or more
   `aws_eks_node_group`s, cluster addons (vpc-cni / coredns / kube-proxy /
   etc.), and the IAM OIDC provider needed for IRSA.
-- **argocd** — installs Argo CD from the official Argo Helm repository after
-  the EKS cluster is available. Set `argocd_chart_version` to pin a chart
-  release and use `argocd_values` for chart settings.
 
 ## Usage
 
