@@ -29,6 +29,22 @@ variable "subnet_config" {
     public     = bool
   }))
 
+  validation {
+    condition = (
+      length([for subnet in var.subnet_config : subnet if subnet.public]) > 0 &&
+      length([for subnet in var.subnet_config : subnet if !subnet.public]) > 0
+    )
+    error_message = "subnet_config must contain at least one public and one private subnet."
+  }
+
+  validation {
+    condition = var.single_nat_gateway || alltrue([
+      for private_az in distinct([for subnet in var.subnet_config : subnet.az if !subnet.public]) :
+      contains([for subnet in var.subnet_config : subnet.az if subnet.public], private_az)
+    ])
+    error_message = "When single_nat_gateway is false, every AZ with a private subnet must also have a public subnet."
+  }
+
 }
 
 variable "single_nat_gateway" {

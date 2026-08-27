@@ -1,36 +1,36 @@
-# output "cluster_name" {
-#   value = aws_eks_cluster.this.name
-# }
+output "cluster_name" {
+  value = module.cluster.cluster_name
+}
 
-# output "cluster_arn" {
-#   value = aws_eks_cluster.this.arn
-# }
+output "cluster_arn" {
+  value = module.cluster.cluster_arn
+}
 
-# output "cluster_endpoint" {
-#   value = aws_eks_cluster.this.endpoint
-# }
+output "cluster_endpoint" {
+  value = module.cluster.cluster_endpoint
+}
 
-# output "cluster_certificate_authority_data" {
-#   value = aws_eks_cluster.this.certificate_authority[0].data
-# }
+output "cluster_certificate_authority_data" {
+  value = module.cluster.cluster_certificate_authority_data
+}
 
-# output "cluster_security_group_id" {
-#   description = "The EKS-managed primary security group (equivalent to ClusterSecurityGroupId in the CFN template)."
-#   value       = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
-# }
+output "cluster_security_group_id" {
+  description = "The EKS-managed primary security group (equivalent to ClusterSecurityGroupId in the CFN template)."
+  value       = module.cluster.cluster_security_group_id
+}
 
-# output "oidc_issuer_url" {
-#   value = aws_eks_cluster.this.identity[0].oidc[0].issuer
-# }
+output "oidc_issuer_url" {
+  value = module.cluster.oidc_issuer_url
+}
 
-# output "oidc_provider_arn" {
-#   value = var.create_oidc_provider ? aws_iam_openid_connect_provider.eks[0].arn : null
-# }
+output "oidc_provider_arn" {
+  value = module.cluster.oidc_provider_arn
+}
 
-# output "node_group_arns" {
-#   value = { for k, ng in aws_eks_node_group.this : k => ng.arn }
-# }
+output "node_group_arns" {
+  value = module.node_group.node_group_arns
+}
 
-# output "node_group_statuses" {
-#   value = { for k, ng in aws_eks_node_group.this : k => ng.status }
-# }
+output "node_group_statuses" {
+  value = module.node_group.node_group_statuses
+}

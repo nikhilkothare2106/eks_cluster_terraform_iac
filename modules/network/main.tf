@@ -74,8 +74,8 @@ locals {
 
   private_azs = toset([for s in local.private_subnets : s.availability_zone])
 
-  # Which AZ(s) get their own NAT Gateway.
-  nat_azs = var.single_nat_gateway ? toset([tolist(local.private_azs)[0]]) : local.private_azs
+  # Place a shared NAT in the first public AZ, keeping the choice stable.
+  nat_azs = var.single_nat_gateway ? toset([sort(keys(local.public_subnet_by_az))[0]]) : local.private_azs
 }
 
 # # ---------------------------

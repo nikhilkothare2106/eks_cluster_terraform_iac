@@ -1,23 +1,25 @@
+# =====================================================================
+# ROOT INPUTS — values are supplied in terraform.tfvars.
+# =====================================================================
+
+# ---------------------------
+# Global settings
+# ---------------------------
 variable "aws_region" {
   description = "AWS region to deploy into."
   type        = string
-  default     = "ap-south-1"
 }
 
 variable "cluster_name" {
   description = "Name of the EKS cluster; also used as a prefix for every related resource."
   type        = string
-  default     = "eks-cluster"
 }
 
-variable "kubernetes_version" {
-  type    = string
-  default = "1.31"
-}
-
+# ---------------------------
+# Network module inputs
+# ---------------------------
 variable "vpc_cidr" {
-  type    = string
-  default = "10.0.0.0/16"
+  type = string
 }
 
 variable "single_nat_gateway" {
@@ -35,6 +37,13 @@ variable "subnet_config" {
   }))
 }
 
+# ---------------------------
+# EKS module inputs
+# ---------------------------
+variable "kubernetes_version" {
+  type = string
+}
+
 variable "endpoint_public_access" {
   type    = bool
   default = true
@@ -46,32 +55,20 @@ variable "endpoint_private_access" {
 }
 
 variable "public_access_cidrs" {
-  type    = list(string)
-  default = ["0.0.0.0/0"]
+  type = list(string)
 }
 
 variable "node_groups" {
   description = "Managed node groups to create. See modules/eks/variables.tf for the full object schema."
   type        = any
-  default = {
-    default = {
-      instance_types = ["m7i-flex.large"]
-      capacity_type  = "ON_DEMAND"
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 2
-      disk_size      = 20
-    }
-  }
 }
 
 variable "cluster_addons" {
   type = map(object({
-    version                  = optional(string, null)
-    resolve_conflicts        = optional(string, "OVERWRITE")
-    service_account_role_arn = optional(string, null)
+    version                  = optional(string)
+    resolve_conflicts        = optional(string)
+    service_account_role_arn = optional(string)
   }))
- 
 }
 
 variable "create_oidc_provider" {
@@ -79,11 +76,93 @@ variable "create_oidc_provider" {
   type        = bool
 }
 
+# ---------------------------
+# External Secrets IRSA module inputs
+# ---------------------------
+variable "external_store_secret_arn" {
+  description = "ARN of the myapp dev secret in Secrets Manager"
+  type        = string
+}
 
+
+variable "external_secrets_irsa_role_name" {
+  description = "Name of the IAM role to create"
+  type        = string
+}
+
+variable "external_secrets_namespace" {
+  description = "Kubernetes namespace of the service account"
+  type        = string
+}
+
+variable "external_secrets_service_account_name" {
+  description = "Name of the Kubernetes service account"
+  type        = string
+}
+
+# ---------------------------
+# Shared tags
+# ---------------------------
 variable "tags" {
   description = "Common tags applied to every resource."
   type        = map(string)
-  default = {
-    Project = "eks-platform"
-  }
+}
+
+# ---------------------------
+# AWS Load Balancer Controller IRSA module inputs
+# ---------------------------
+variable "alb_irsa_policy_arn" {
+  description = "Existing IAM policy attached to the controller role."
+  type        = string
+}
+variable "alb_irsa_namespace" {
+  description = "Kubernetes namespace for the controller."
+  type        = string
+}
+
+variable "alb_irsa_role_name" {
+  description = "value"
+  type        = string
+}
+
+# ---------------------------
+# Argo CD module inputs
+# ---------------------------
+variable "argocd_chart_version" {
+  description = "Optional pinned Argo CD chart version."
+  type        = string
+}
+
+variable "argocd_values" {
+  description = "YAML documents passed to the Argo CD Helm chart."
+  type        = list(string)
+}
+
+variable "argocd_create_namespace" {
+  description = "Create the Argo CD namespace when it does not exist."
+  type        = bool
+  default     = true
+}
+
+variable "argocd_wait" {
+  description = "Wait for Argo CD resources to become ready."
+  type        = bool
+  default     = true
+}
+
+variable "argocd_atomic" {
+  description = "Roll back the release if installation fails."
+  type        = bool
+  default     = true
+}
+
+variable "argocd_cleanup_on_fail" {
+  description = "Delete newly created resources if the release fails."
+  type        = bool
+  default     = true
+}
+
+variable "argocd_timeout" {
+  description = "Maximum time in seconds to wait for the Argo CD Helm release."
+  type        = number
 }

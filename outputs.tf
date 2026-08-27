@@ -48,3 +48,22 @@
 #  output "node_groups" {
 #   value = local.node_groups
 # }
+
+# output "oidc_issuer_url" {
+#   value = module.eks.oidc_issuer_url
+# }
+
+# output "argocd_release_name" {
+#   description = "Argo CD Helm release name."
+#   value       = module.argocd.release_name
+# }
+
+# output "argocd_namespace" {
+#   description = "Namespace containing Argo CD."
+#   value       = module.argocd.namespace
+# }
+
+# output "argocd_status" {
+#   description = "Current Argo CD Helm release status."
+#   value       = module.argocd.status
+# }
