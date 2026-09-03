@@ -4,8 +4,9 @@
 # =====================================================================
 
 locals {
-  # Inject sensible defaults (private subnets, the IAM module's node role)
-  # into every node group entry the caller didn't fully specify.
+  # Inject sensible defaults for node groups while preserving each group's
+  # explicit role override. The default role should only be used when a group
+  # does not specify node_role_arn.
   node_groups = {
     for name, ng in var.node_groups : name => merge(
       {
@@ -38,12 +39,16 @@ module "security_group" {
 module "iam" {
   source = "./modules/iam"
 
-  name = var.cluster_name
-  tags = var.tags
+  name              = var.cluster_name
+  cluster_role_name = var.cluster_role_name
+  node_role_name    = var.node_role_name
+  tags              = var.tags
 }
 
 module "eks" {
   source = "./modules/eks"
+
+  depends_on = [module.iam]
 
   name               = var.cluster_name
   kubernetes_version = var.kubernetes_version
@@ -58,12 +63,25 @@ module "eks" {
   endpoint_private_access          = var.endpoint_private_access
   public_access_cidrs              = var.public_access_cidrs
 
-  default_node_role_arn = module.iam.node_role_arn
-  node_groups           = local.node_groups
+  node_groups = local.node_groups
 
   cluster_addons       = var.cluster_addons
   create_oidc_provider = var.create_oidc_provider
   tags                 = var.tags
+}
+
+module "database" {
+  source = "./modules/database"
+
+  postgres_name          = "postgresql-test-db"
+  mysql_name             = "mysql-test-db"
+  vpc_id                 = module.network.vpc_id
+  subnet_ids             = module.network.private_subnet_ids
+  allowed_cidr_blocks    = [var.vpc_cidr]
+  availability_zone      = "ap-south-1a"
+  postgres_configuration = var.database_config
+  mysql_configuration    = var.mysql_database_config
+  tags                   = var.tags
 }
 
 module "setup_ec2" {

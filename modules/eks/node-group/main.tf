@@ -1,7 +1,8 @@
 resource "aws_launch_template" "node" {
   for_each = var.node_groups
 
-  name_prefix            = "${var.name}-${each.key}-"
+  # name_prefix            = "${var.name}-${each.key}-"
+  name                   = "${var.name}-${each.key}-launch-template"
   update_default_version = true
   vpc_security_group_ids = [
     var.shared_node_security_group_id,
@@ -32,7 +33,7 @@ resource "aws_eks_node_group" "this" {
 
   cluster_name    = var.cluster_name
   node_group_name = each.key
-  node_role_arn   = coalesce(each.value.node_role_arn, var.default_node_role_arn)
+  node_role_arn   = each.value.node_role_arn
   subnet_ids      = each.value.subnet_ids
 
   capacity_type  = each.value.capacity_type

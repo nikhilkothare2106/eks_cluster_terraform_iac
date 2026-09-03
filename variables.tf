@@ -15,6 +15,16 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "cluster_role_name" {
+  description = "Existing IAM role name used by the EKS control plane."
+  type        = string
+}
+
+variable "node_role_name" {
+  description = "Existing IAM role name used by EKS managed node groups."
+  type        = string
+}
+
 # ---------------------------
 # Network module inputs
 # ---------------------------
@@ -64,16 +74,56 @@ variable "node_groups" {
 }
 
 variable "cluster_addons" {
+  description = "EKS addons to install. Map key is the addon name (e.g. vpc-cni, coredns, kube-proxy, aws-ebs-csi-driver). Set version to null to use the most recent version."
   type = map(object({
     version                  = optional(string)
-    resolve_conflicts        = optional(string)
+    resolve_conflicts        = optional(string, "OVERWRITE")
     service_account_role_arn = optional(string)
+    before_compute           = optional(bool, false) # <-- classification lives with the data
   }))
 }
+
 
 variable "create_oidc_provider" {
   description = "Create the IAM OIDC identity provider for the cluster, required for IRSA (IAM Roles for Service Accounts)."
   type        = bool
+}
+
+# ---------------------------
+# Database module inputs
+# ---------------------------
+variable "database_config" {
+  description = "Configuration for the PostgreSQL RDS instance."
+  type = object({
+    db_name                 = string
+    username                = string
+    password                = string
+    port                    = number
+    engine_version          = string
+    instance_class          = string
+    allocated_storage       = number
+    storage_type            = string
+    publicly_accessible     = bool
+    skip_final_snapshot     = bool
+    backup_retention_period = optional(number, 7)
+  })
+}
+
+variable "mysql_database_config" {
+  description = "Configuration for the MySQL RDS instance."
+  type = object({
+    db_name                 = string
+    username                = string
+    password                = string
+    port                    = number
+    engine_version          = string
+    instance_class          = string
+    allocated_storage       = number
+    storage_type            = string
+    publicly_accessible     = bool
+    skip_final_snapshot     = bool
+    backup_retention_period = optional(number, 7)
+  })
 }
 
 # ---------------------------

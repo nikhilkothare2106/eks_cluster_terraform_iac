@@ -86,26 +86,22 @@ variable "node_groups" {
       value  = optional(string)
       effect = string # NO_SCHEDULE | PREFER_NO_SCHEDULE | NO_EXECUTE
     })), [])
-    node_role_arn = optional(string, null) # falls back to var.default_node_role_arn
+    node_role_arn = optional(string, null)
   }))
   default = {}
-}
-
-variable "default_node_role_arn" {
-  description = "IAM role ARN used by node groups that don't set their own node_role_arn (from the iam module's node role)."
-  type        = string
-  default     = null
 }
 
 # ---------------------------
 # Addons
 # ---------------------------
+
 variable "cluster_addons" {
   description = "EKS addons to install. Map key is the addon name (e.g. vpc-cni, coredns, kube-proxy, aws-ebs-csi-driver). Set version to null to use the most recent version."
   type = map(object({
-    version                  = optional(string, null)
-    resolve_conflicts        = optional(string, "OVERWRITE")
-    service_account_role_arn = optional(string, null)
+    version                   = optional(string)
+    resolve_conflicts         = optional(string, "OVERWRITE")
+    service_account_role_arn  = optional(string)
+    before_compute             = optional(bool, false) # <-- classification lives with the data
   }))
 }
 

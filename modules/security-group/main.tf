@@ -42,9 +42,6 @@ resource "aws_security_group" "control_plane_additional" {
 
 resource "aws_security_group" "shared_node" {
 
-
-
-
   name        = "${var.name}-shared-node"
   description = "Communication between all nodes in the cluster"
   vpc_id      = var.vpc_id
@@ -75,9 +72,17 @@ resource "aws_security_group" "shared_node" {
 }
 
 resource "aws_security_group" "setup_ec2" {
+
   name        = "${var.name}-setup-ec2"
-  description = "Outbound access for the setup EC2 instance"
+  description = "Security group for SSH access"
   vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0

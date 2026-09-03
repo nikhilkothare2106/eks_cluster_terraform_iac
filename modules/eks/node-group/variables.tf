@@ -14,11 +14,6 @@ variable "shared_node_security_group_id" {
   type = string
 }
 
-variable "default_node_role_arn" {
-  type    = string
-  default = null
-}
-
 variable "node_groups" {
   type = map(object({
     subnet_ids     = list(string)

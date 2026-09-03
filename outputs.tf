@@ -52,3 +52,12 @@
 # output "oidc_issuer_url" {
 #   value = module.eks.oidc_issuer_url
 # }
+
+
+# output "setup_ec2_private_key_path" {
+#   value = module.setup_ec2.private_key_path
+# }
+
+output "ssh_command" {
+  value = module.setup_ec2.ssh_command
+}

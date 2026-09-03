@@ -23,24 +23,46 @@ resource "aws_eks_cluster" "this" {
   tags = merge(var.tags, {
     Name = "${var.name}/ControlPlane"
   })
+
+  
+  # # EKS Auto Mode compute
+  # compute_config {
+  #   enabled       = true
+  #   node_pools    = ["general-purpose", "system"]
+  #   node_role_arn = var.default_node_role_arn
+  # }
+
+  # # EKS Auto Mode load balancing/networking capability
+  # kubernetes_network_config {
+  #   elastic_load_balancing {
+  #     enabled = true
+  #   }
+  # }
+
+  # # EKS Auto Mode block storage
+  # storage_config {
+  #   block_storage {
+  #     enabled = true
+  #   }
+  # }
 }
 
-data "tls_certificate" "eks" {
-  count = var.create_oidc_provider ? 1 : 0
-  url   = aws_eks_cluster.this.identity[0].oidc[0].issuer
-}
+# data "tls_certificate" "eks" {
+#   count = var.create_oidc_provider ? 1 : 0
+#   url   = aws_eks_cluster.this.identity[0].oidc[0].issuer
+# }
 
-resource "aws_iam_openid_connect_provider" "eks" {
-  count = var.create_oidc_provider ? 1 : 0
+# resource "aws_iam_openid_connect_provider" "eks" {
+#   count = var.create_oidc_provider ? 1 : 0
 
-  url             = aws_eks_cluster.this.identity[0].oidc[0].issuer
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.eks[0].certificates[0].sha1_fingerprint]
+#   url             = aws_eks_cluster.this.identity[0].oidc[0].issuer
+#   client_id_list  = ["sts.amazonaws.com"]
+#   thumbprint_list = [data.tls_certificate.eks[0].certificates[0].sha1_fingerprint]
 
-  tags = merge(var.tags, {
-    Name = "${var.name}/OIDCProvider"
-  })
-}
+#   tags = merge(var.tags, {
+#     Name = "${var.name}/OIDCProvider"
+#   })
+# }
 
 resource "aws_security_group_rule" "cluster_to_shared_node" {
   description              = "Allow managed and unmanaged nodes to communicate with each other (all ports)"

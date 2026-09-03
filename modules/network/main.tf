@@ -29,14 +29,14 @@ resource "aws_internet_gateway" "igw" {
   })
 }
 
-# resource "aws_vpc_dhcp_options" "this" {
-#   count               = 0 # placeholder for future custom DHCP options, not used today
-#   domain_name_servers = ["AmazonProvidedDNS"]
-# }
+# # resource "aws_vpc_dhcp_options" "this" {
+# #   count               = 0 # placeholder for future custom DHCP options, not used today
+# #   domain_name_servers = ["AmazonProvidedDNS"]
+# # }
 
-# # ---------------------------
-# # Subnets (public + private, driven entirely by var.subnet_config)
-# # ---------------------------
+# # # ---------------------------
+# # # Subnets (public + private, driven entirely by var.subnet_config)
+# # # ---------------------------
 resource "aws_subnet" "subnets" {
   for_each = var.subnet_config
 
@@ -78,9 +78,9 @@ locals {
   nat_azs = var.single_nat_gateway ? toset([sort(keys(local.public_subnet_by_az))[0]]) : local.private_azs
 }
 
-# # ---------------------------
-# # Elastic IPs for NAT Gateway(s)
-# # ---------------------------
+# # # ---------------------------
+# # # Elastic IPs for NAT Gateway(s)
+# # # ---------------------------
 resource "aws_eip" "nat" {
   for_each = local.nat_azs
 
@@ -93,9 +93,9 @@ resource "aws_eip" "nat" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-# # ---------------------------
-# # NAT Gateway(s)
-# # ---------------------------
+# # # ---------------------------
+# # # NAT Gateway(s)
+# # # ---------------------------
 resource "aws_nat_gateway" "this" {
   for_each = local.nat_azs
 
@@ -109,9 +109,9 @@ resource "aws_nat_gateway" "this" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-# # ---------------------------
-# # Public route table (single, shared by all public subnets)
-# # ---------------------------
+# # # ---------------------------
+# # # Public route table (single, shared by all public subnets)
+# # # ---------------------------
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -133,9 +133,9 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# # ---------------------------
-# # Private route tables (one per AZ that has a private subnet)
-# # ---------------------------
+# # # ---------------------------
+# # # Private route tables (one per AZ that has a private subnet)
+# # # ---------------------------
 resource "aws_route_table" "private" {
   for_each = local.private_azs
 
