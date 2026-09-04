@@ -17,6 +17,18 @@ module "cluster" {
   tags                                        = var.tags
 }
 
+
+module "addon_before_nodes" {
+  source = "./addon"
+
+  cluster_name = module.cluster.cluster_name
+  cluster_addons = {
+    for name, addon in var.cluster_addons : name => addon
+    if addon.before_compute
+  }
+  tags = var.tags
+}
+
 module "node_group" {
   source = "./node-group"
 
@@ -28,17 +40,6 @@ module "node_group" {
   tags                          = var.tags
 
   depends_on = [module.addon_before_nodes]
-}
-
-module "addon_before_nodes" {
-  source = "./addon"
-
-  cluster_name = module.cluster.cluster_name
-  cluster_addons = {
-    for name, addon in var.cluster_addons : name => addon
-    if addon.before_compute
-  }
-  tags = var.tags
 }
 
 module "addon_after_nodes" {

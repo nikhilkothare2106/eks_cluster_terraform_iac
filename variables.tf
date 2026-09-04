@@ -92,9 +92,11 @@ variable "create_oidc_provider" {
 # ---------------------------
 # Database module inputs
 # ---------------------------
-variable "database_config" {
+variable "postgresql_database_config" {
   description = "Configuration for the PostgreSQL RDS instance."
   type = object({
+    name                    = string
+    availability_zone       = string
     db_name                 = string
     username                = string
     password                = string
@@ -112,6 +114,8 @@ variable "database_config" {
 variable "mysql_database_config" {
   description = "Configuration for the MySQL RDS instance."
   type = object({
+    name                    = string
+    availability_zone       = string
     db_name                 = string
     username                = string
     password                = string

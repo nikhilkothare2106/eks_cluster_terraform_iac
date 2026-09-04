@@ -136,16 +136,10 @@ resource "aws_instance" "setup_ec2_backend" {
   instance_type          = "t3.micro"
   key_name               = aws_key_pair.my_key.key_name
   vpc_security_group_ids = [var.ec2_sg]
-  # user_data              = file("${path.module}/user_data.sh")
   subnet_id = var.subnet_id
 
-  # user_data = templatefile("${path.module}/userdata.sh.tpl", {
-  #   ecr_repos = {
-  #     for name, repo in aws_ecr_repository.repos :
-  #     name => repo.repository_url
-  #   }
-  # })
-  # user_data_replace_on_change = true
+  user_data                   = file("${path.module}/userdata-backend.sh")
+  user_data_replace_on_change = true
 
   # iam_instance_profile = "ECRFullAccess"
   # iam_instance_profile = aws_iam_instance_profile.ec2_profile.name

@@ -73,13 +73,10 @@ module "eks" {
 module "database" {
   source = "./modules/database"
 
-  postgres_name          = "postgresql-test-db"
-  mysql_name             = "mysql-test-db"
   vpc_id                 = module.network.vpc_id
   subnet_ids             = module.network.private_subnet_ids
   allowed_cidr_blocks    = [var.vpc_cidr]
-  availability_zone      = "ap-south-1a"
-  postgres_configuration = var.database_config
+  postgres_configuration = var.postgresql_database_config
   mysql_configuration    = var.mysql_database_config
   tags                   = var.tags
 }

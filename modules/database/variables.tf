@@ -1,13 +1,3 @@
-variable "postgres_name" {
-  description = "Logical name for the PostgreSQL RDS instance."
-  type        = string
-}
-
-variable "mysql_name" {
-  description = "Logical name for the MySQL RDS instance."
-  type        = string
-}
-
 variable "vpc_id" {
   description = "VPC ID where the database security group will be created."
   type        = string
@@ -23,15 +13,11 @@ variable "allowed_cidr_blocks" {
   type        = list(string)
 }
 
-variable "availability_zone" {
-  description = "Single AZ to place this sandbox database instance in."
-  type        = string
-  default     = "ap-south-1a"
-}
-
 variable "postgres_configuration" {
   description = "PostgreSQL database instance settings."
   type = object({
+    name                    = string
+    availability_zone       = string
     db_name                 = string
     username                = string
     password                = string
@@ -49,6 +35,8 @@ variable "postgres_configuration" {
 variable "mysql_configuration" {
   description = "MySQL database instance settings."
   type = object({
+    name                    = string
+    availability_zone       = string
     db_name                 = string
     username                = string
     password                = string
