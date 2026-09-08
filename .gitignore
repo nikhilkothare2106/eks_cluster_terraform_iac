@@ -45,3 +45,7 @@ terraform.rc
 
 values.yaml
 trino-eks-setup.md
+
+# SUGGESTED — add this block
+*.pem
+generated/

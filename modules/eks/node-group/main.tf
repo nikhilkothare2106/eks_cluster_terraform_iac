@@ -8,6 +8,10 @@ resource "aws_launch_template" "node" {
     var.shared_node_security_group_id,
     var.cluster_security_group_id,
   ]
+  metadata_options {
+    http_tokens                 = "required" # enforce IMDSv2
+    http_put_response_hop_limit = 2
+  }
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -33,7 +37,7 @@ resource "aws_eks_node_group" "this" {
 
   cluster_name    = var.cluster_name
   node_group_name = each.key
-  node_role_arn   = each.value.node_role_arn
+  node_role_arn   = coalesce(each.value.node_role_arn, var.node_role_arn)
   subnet_ids      = each.value.subnet_ids
 
   capacity_type  = each.value.capacity_type

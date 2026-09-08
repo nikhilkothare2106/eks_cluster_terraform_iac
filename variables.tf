@@ -15,13 +15,8 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "cluster_role_name" {
-  description = "Existing IAM role name used by the EKS control plane."
-  type        = string
-}
-
-variable "node_role_name" {
-  description = "Existing IAM role name used by EKS managed node groups."
+variable "key_name" {
+  description = "Base name used for the setup EC2 key pair and generated private key."
   type        = string
 }
 
@@ -69,8 +64,23 @@ variable "public_access_cidrs" {
 }
 
 variable "node_groups" {
-  description = "Managed node groups to create. See modules/eks/variables.tf for the full object schema."
-  type        = any
+  description = "Managed node groups to create."
+  type = map(object({
+    instance_types = list(string)
+    capacity_type  = string
+    ami_type       = string
+    disk_size      = number
+    min_size       = number
+    max_size       = number
+    desired_size   = number
+    labels         = optional(map(string), {})
+    taints = optional(list(object({
+      key    = string
+      value  = optional(string)
+      effect = string
+    })), [])
+    node_role_arn = optional(string, null)
+  }))
 }
 
 variable "cluster_addons" {
@@ -105,10 +115,12 @@ variable "postgresql_database_config" {
     instance_class          = string
     allocated_storage       = number
     storage_type            = string
+    multi_az                = optional(bool, false)
     publicly_accessible     = bool
     skip_final_snapshot     = bool
     backup_retention_period = optional(number, 7)
   })
+  sensitive = true
 }
 
 variable "mysql_database_config" {
@@ -124,10 +136,12 @@ variable "mysql_database_config" {
     instance_class          = string
     allocated_storage       = number
     storage_type            = string
+    multi_az                = optional(bool, false)
     publicly_accessible     = bool
     skip_final_snapshot     = bool
     backup_retention_period = optional(number, 7)
   })
+  sensitive = true
 }
 
 # ---------------------------

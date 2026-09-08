@@ -44,7 +44,7 @@ resource "aws_db_instance" "database" {
   allocated_storage      = var.configuration.allocated_storage
   storage_type           = var.configuration.storage_type
   availability_zone      = var.availability_zone
-  multi_az               = false
+  multi_az               = var.configuration.multi_az
   db_subnet_group_name   = aws_db_subnet_group.database.name
   vpc_security_group_ids = [aws_security_group.database.id]
 
@@ -53,6 +53,8 @@ resource "aws_db_instance" "database" {
   backup_retention_period    = var.configuration.backup_retention_period
   apply_immediately          = true
   auto_minor_version_upgrade = true
+
+  storage_encrypted = true
 
   tags = merge(var.tags, {
     Name = "${var.name}/PostgreSQL"

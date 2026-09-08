@@ -11,12 +11,14 @@ eksctl-generated CloudFormation template into reusable modules.
 ├── variables.tf
 ├── outputs.tf
 ├── versions.tf                 # provider requirements
-├── terraform.tfvars.example
+├── terraform.tfvars            # local variable values
 └── modules/
+    ├── database/               # optional MySQL and PostgreSQL databases
     ├── network/                # VPC, public/private subnets, IGW, NAT GW(s), route tables
     ├── security-group/         # control-plane-additional SG + shared-node SG
     ├── iam/                    # cluster service role, node role, optional fargate role
-    └── eks/                    # EKS cluster, SG cross-rules, node groups, addons, OIDC provider
+    ├── eks/                    # EKS cluster, SG cross-rules, node groups, addons, OIDC provider
+    └── setup_ec2/              # optional EC2 setup hosts and user data
 ```
 
 ## What each module does
@@ -44,7 +46,6 @@ eksctl-generated CloudFormation template into reusable modules.
 ## Usage
 
 ```bash
-cp terraform.tfvars.example terraform.tfvars
 # edit terraform.tfvars: cluster_name, region, node group sizing, CIDR allow-list...
 
 terraform init

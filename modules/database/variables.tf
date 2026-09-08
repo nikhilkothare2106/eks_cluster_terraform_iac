@@ -26,6 +26,7 @@ variable "postgres_configuration" {
     instance_class          = string
     allocated_storage       = number
     storage_type            = string
+    multi_az                = optional(bool, false)
     publicly_accessible     = bool
     skip_final_snapshot     = bool
     backup_retention_period = optional(number, 7)
@@ -45,6 +46,7 @@ variable "mysql_configuration" {
     instance_class          = string
     allocated_storage       = number
     storage_type            = string
+    multi_az                = optional(bool, false)
     publicly_accessible     = bool
     skip_final_snapshot     = bool
     backup_retention_period = optional(number, 7)

@@ -1,84 +1,87 @@
-# locals {
-#   ecr_repositories = [
-#     "hotelservice",
-#     "userservice",
-#     "serviceregistry",
-#     "ratingservice",
-#     "apigatewayservice",
-#     "frontendservice"
-#   ]
+locals {
+  ecr_repositories = [
+    "hotelservice",
+    "userservice",
+    "serviceregistry",
+    "ratingservice",
+    "apigatewayservice",
+    "frontendservice"
+  ]
 
-#   common_tags = {
-#     Environment = "production"
-#     ManagedBy   = "terraform"
-#   }
-# }
-
-# resource "aws_ecr_repository" "repos" {
-#   for_each = toset(local.ecr_repositories)
-
-#   name                 = each.value
-#   image_tag_mutability = "MUTABLE"
-#   force_delete         = true
-
-#   image_scanning_configuration {
-#     scan_on_push = true
-#   }
-
-#   encryption_configuration {
-#     encryption_type = "AES256"
-#   }
-
-#   tags = merge(
-#     local.common_tags,
-#     {
-#       Name = each.value
-#     }
-#   )
-# }
-
-# resource "aws_ecr_lifecycle_policy" "repos" {
-#   for_each = aws_ecr_repository.repos
-
-#   repository = each.value.name
-
-#   policy = jsonencode({
-#     rules = [
-#       {
-#         rulePriority = 1
-#         description  = "Keep last 10 images"
-
-#         selection = {
-#           tagStatus   = "any"
-#           countType   = "imageCountMoreThan"
-#           countNumber = 10
-#         }
-
-#         action = {
-#           type = "expire"
-#         }
-#       }
-#     ]
-#   })
-# }
-
-
-resource "tls_private_key" "my_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+  common_tags = {
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
-resource "aws_key_pair" "my_key" {
-  key_name   = "my-keypair"
-  public_key = tls_private_key.my_key.public_key_openssh
+resource "aws_ecr_repository" "repos" {
+  for_each = toset(local.ecr_repositories)
+
+  name                 = each.value
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = each.value
+    }
+  )
 }
 
-resource "local_file" "private_key" {
-  content  = tls_private_key.my_key.private_key_pem
-  filename = "my-keypair.pem"
+resource "aws_ecr_lifecycle_policy" "repos" {
+  for_each = aws_ecr_repository.repos
+
+  repository = each.value.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep last 10 images"
+
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 10
+        }
+
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
 }
 
 
+# resource "tls_private_key" "my_key" {
+#   algorithm = "RSA"
+#   rsa_bits  = 4096
+# }
+
+# resource "aws_key_pair" "my_key" {
+#   key_name   = "${var.key_name}-setup-ec2-keypair"
+#   public_key = tls_private_key.my_key.public_key_openssh
+# }
+
+# resource "local_file" "private_key" {
+#   content         = tls_private_key.my_key.private_key_pem
+#   filename        = "${path.root}/generated/${var.key_name}-setup-ec2.pem"
+#   file_permission = "0600"
+# }
+
+data "aws_key_pair" "my_key" {
+  key_name = "KEY_PAIR"
+}
 
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
@@ -97,52 +100,63 @@ data "aws_ami" "amazon_linux_2023" {
 
 
 
-# resource "aws_iam_role" "ec2_role" {
-#   name = "devops-ec2-role"
+resource "aws_iam_role" "ec2_role" {
+  name = "devops-ec2-role"
 
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Principal = {
-#           Service = "ec2.amazonaws.com"
-#         }
-#         Action = "sts:AssumeRole"
-#       }
-#     ]
-#   })
-# }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
 
-# resource "aws_iam_role_policy_attachment" "ecr_power_user" {
-#   role       = aws_iam_role.ec2_role.name
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
-# }
+resource "aws_iam_role_policy_attachment" "ecr_power_user" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+}
 
 
 # data "aws_iam_role" "node" {
 #   name = "demoEKS"
 # }
 
-# resource "aws_iam_instance_profile" "ec2_profile" {
-#   name = "devops-ec2-profile"
-#   # role = aws_iam_role.ec2_role.name
-#   role = data.aws_iam_role.node.name
-# }
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "devops-ec2-profile"
+  role = aws_iam_role.ec2_role.name
+  # role = data.aws_iam_role.node.name
+}
 
 
 resource "aws_instance" "setup_ec2_backend" {
-  ami                    = "ami-090d68841c2a28756"
-  instance_type          = "t3.micro"
-  key_name               = aws_key_pair.my_key.key_name
+  ami                    = "ami-094210f044117049d"
+  instance_type          = "m7i-flex.large"
+  key_name               = data.aws_key_pair.my_key.key_name
   vpc_security_group_ids = [var.ec2_sg]
-  subnet_id = var.subnet_id
+  subnet_id              = var.subnet_id
 
-  user_data                   = file("${path.module}/userdata-backend.sh")
+  root_block_device {
+    volume_size           = 30
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+
+  user_data = templatefile("${path.module}/userdata.sh.tpl", {
+    ecr_repos = {
+      for name, repo in aws_ecr_repository.repos :
+      name => repo.repository_url
+    }
+  })
+
   user_data_replace_on_change = true
 
-  # iam_instance_profile = "ECRFullAccess"
-  # iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
     Name = "SETUP-EC2-BACKEND"

@@ -36,6 +36,7 @@ module "node_group" {
   cluster_name                  = module.cluster.cluster_name
   cluster_security_group_id     = module.cluster.cluster_security_group_id
   shared_node_security_group_id = var.shared_node_security_group_id
+  node_role_arn                 = var.node_role_arn
   node_groups                   = var.node_groups
   tags                          = var.tags
 

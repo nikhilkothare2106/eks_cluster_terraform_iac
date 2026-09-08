@@ -3,26 +3,10 @@ variable "name" {
   type        = string
 }
 
-variable "cluster_role_name" {
-  description = "Existing IAM role name used by the EKS control plane."
-  type        = string
-}
-
-variable "node_role_name" {
-  description = "Existing IAM role name used by EKS managed node groups."
-  type        = string
-}
-
 variable "cluster_service_role_additional_policy_arns" {
   description = "Extra managed policy ARNs to attach to the cluster service role, beyond AmazonEKSClusterPolicy and AmazonEKSVPCResourceController."
   type        = list(string)
   default     = []
-}
-
-variable "create_node_role" {
-  description = "Whether to create the IAM role used by managed node groups."
-  type        = bool
-  default     = true
 }
 
 variable "node_role_additional_policy_arns" {

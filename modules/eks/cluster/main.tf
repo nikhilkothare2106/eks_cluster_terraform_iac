@@ -24,7 +24,7 @@ resource "aws_eks_cluster" "this" {
     Name = "${var.name}/ControlPlane"
   })
 
-  
+
   # # EKS Auto Mode compute
   # compute_config {
   #   enabled       = true
@@ -47,10 +47,10 @@ resource "aws_eks_cluster" "this" {
   # }
 }
 
-# data "tls_certificate" "eks" {
-#   count = var.create_oidc_provider ? 1 : 0
-#   url   = aws_eks_cluster.this.identity[0].oidc[0].issuer
-# }
+data "tls_certificate" "eks" {
+  count = var.create_oidc_provider ? 1 : 0
+  url   = aws_eks_cluster.this.identity[0].oidc[0].issuer
+}
 
 # resource "aws_iam_openid_connect_provider" "eks" {
 #   count = var.create_oidc_provider ? 1 : 0

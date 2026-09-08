@@ -31,6 +31,11 @@ variable "shared_node_security_group_id" {
   type        = string
 }
 
+variable "node_role_arn" {
+  description = "Effective IAM role ARN used by managed node groups."
+  type        = string
+}
+
 variable "endpoint_private_access" {
   type = bool
 }
@@ -73,10 +78,10 @@ variable "node_groups" {
   EOT
   type = map(object({
     subnet_ids     = list(string)
-    instance_types = optional(list(string), ["t3.medium"])
-    capacity_type  = optional(string, "ON_DEMAND") # ON_DEMAND | SPOT
-    ami_type       = optional(string, "AL2023_x86_64_STANDARD")
-    disk_size      = optional(number, 20)
+    instance_types = list(string)
+    capacity_type  = string # ON_DEMAND | SPOT
+    ami_type       = string
+    disk_size      = number
     min_size       = number
     max_size       = number
     desired_size   = number
@@ -98,10 +103,10 @@ variable "node_groups" {
 variable "cluster_addons" {
   description = "EKS addons to install. Map key is the addon name (e.g. vpc-cni, coredns, kube-proxy, aws-ebs-csi-driver). Set version to null to use the most recent version."
   type = map(object({
-    version                   = optional(string)
-    resolve_conflicts         = optional(string, "OVERWRITE")
-    service_account_role_arn  = optional(string)
-    before_compute             = optional(bool, false) # <-- classification lives with the data
+    version                  = optional(string)
+    resolve_conflicts        = optional(string, "OVERWRITE")
+    service_account_role_arn = optional(string)
+    before_compute           = optional(bool, false) # <-- classification lives with the data
   }))
 }
 

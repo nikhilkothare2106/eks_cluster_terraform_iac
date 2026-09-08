@@ -14,13 +14,17 @@ variable "shared_node_security_group_id" {
   type = string
 }
 
+variable "node_role_arn" {
+  type = string
+}
+
 variable "node_groups" {
   type = map(object({
     subnet_ids     = list(string)
-    instance_types = optional(list(string), ["t3.medium"])
-    capacity_type  = optional(string, "ON_DEMAND")
-    ami_type       = optional(string, "AL2023_x86_64_STANDARD")
-    disk_size      = optional(number, 20)
+    instance_types = list(string)
+    capacity_type  = string
+    ami_type       = string
+    disk_size      = number
     min_size       = number
     max_size       = number
     desired_size   = number
